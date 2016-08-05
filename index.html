@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>谁组的暗牧0.2</title>
+    <script type="text/javascript" src="crafty/crafty.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="./css/base-min.css">
+    <link rel="stylesheet" type="text/css" href="./css/pure-min.css">
+    <link rel="stylesheet" type="text/css" href="./css/my.css">
+    <link rel="stylesheet" href="./css/font-awesome-4.6.3/css/font-awesome.min.css">
+    <script type="text/javascript" src="./js/jquery.js"></script>
+</head>
+<body>
+<div id="main" class="pure-g">
+
+    <div id="game" class="pure-u-1-2"></div>
+    <div id="bgm" class="pure-u-2-5">
+        <button id="pause"><i class="fa fa-pause"></i></button>
+        <button id="next"><i class="fa fa-step-forward"></i></button>
+        <pre>
+玩法介绍：左右移动人物，点击画面，将沿着直线释放“圣光魔法”，突破暗幕。
+胜利条件：X回合内，曝光度达到XX，就可以下载这张图片了～
+
+PS：抓包可以直接获取图片orz。。
+        </pre>
+        <a class="pure-button pure-button-hidden" id="download">
+            <i class="fa fa-download"></i> 图片下载
+        </a>
+    </div>
+
+
+</div>
+
+
+<!-- <div id="bgm"></div> -->
+
+<script type="text/javascript" src="./js/bgm.js"></script>
+<script>
+    Crafty.init(700, 700, document.getElementById('game'));
+
+    // var bg = Crafty.e("2D, DOM, Image")
+    //         .attr({w: Crafty.viewport.width, h: Crafty.viewport.height})
+    //         .image("./res/bg.jpeg", "no-repeat");
+    //    $("#game").mouseover(function () {
+    //        this.style.cursor = 'hands';
+    //    });
+    var main_img = Crafty.e("2D, DOM, Image")
+            .attr({x: 50, y: 50, w: 360, h: 480})
+            .image("./res/meizi1.png", "no-repeat");
+
+    var suf_img = new Array();
+    var round = 1;
+    var Mouse_info;
+
+    // 达到多少曝光度，获胜
+    var success_rate = 0.5;
+
+    for (var i = 0; i < main_img.w; i += 20) {
+        row = new Array();
+        for (var j = 0; j < main_img.h; j += 20) {
+            block = Crafty.e("2D, DOM, Color, Mouse")
+                    .attr({x: main_img.x + i, y: main_img.y + j, w: 20, h: 20})
+                    .color('#000000', 0.99);
+            block.bind('Click', function (e) {
+                // this.color(this._red,this._green,this._blue,0);
+                Mouse_info = e;
+                fase();
+                if (gameover() && round <= 10) {
+//                    alert('success!');
+                    download();
+                }
+                else {
+                    next();
+                    round += 1;
+                    update_round();
+                }
+            });
+//            block.bind('MouseOver', function (e) {
+//                Mouse_info = e;
+//                fase();
+//            });
+            // block.bind('MouseOut',function (e) {
+            //         this.color(this._red,this._green,this._blue,this._strength-0.2);
+            //     });
+            row.push(block);
+        }
+        suf_img.push(row);
+    }
+
+    Crafty.e('Floor, 2D, Canvas, Color, Collision')
+            .attr({x: 45, y: 530, w: 5, h: 25})
+            .color('green');
+    Crafty.e('Floor, 2D, Canvas, Color')
+            .attr({x: 410, y: 530, w: 5, h: 25})
+            .color('green');
+    Crafty.e('Floor, 2D, Canvas, Color')
+            .attr({x: 50, y: 550, w: 360, h: 5})
+            .color('green');
+
+    var sprite = Crafty.e('2D, DOM, Multiway, Gravity, Keyboard, Image')
+                    .attr({x: 200, y: 530, w: 120, h: 120})
+                    .image("./res/glitch_walker.png", "no-repeat")
+                    .origin("center")
+                    .multiway((200, {RIGHT_ARROW: 0, LEFT_ARROW: 180}))
+//            .gravity('Floor')
+            ;
+
+    sprite.bind('KeyDown', function (e) {
+        if (e.key == Crafty.keys.UP_ARROW) {
+            // alert('发射');
+            // console.log(this);
+            dx = this.x;
+            num = parseInt((dx - 50 + this.w / 2) / 20);
+            // alert(num);
+            for (var i = 0; i < 24; i++) {
+                // block = suf_img[i][num];
+                suf_img[num][i].color('#000', 0);
+            }
+        }
+    });
+    var download = function () {
+        var img = main_img.img;
+        var url = img.getAttribute('src');
+        var da = $("#download");
+
+        da.attr('download', url);
+        da.attr('href', url);
+        da.removeClass('pure-button-hidden');
+    }
+
+    var gameover = function () {
+        // 这一块，复用计算曝光度。
+        w = suf_img.length;
+        h = suf_img[0].length;
+        sum = w * h;
+        result = 0;
+        for (var i = 0; i < w; i++) {
+            for (var j = 0; j < h; j++) {
+                result += suf_img[i][j]._strength;
+            }
+        }
+        update_rate(1 - result / sum);
+
+        if (result < (1 - success_rate) * sum) {
+            return true;
+        }
+        else {
+            return false;
+        }
+
+    };
+    var RoundText = Crafty.e('2D, DOM, Text')
+            .attr({
+                x: 400,
+                y: 0,
+                w: 200
+            }).textFont({size: '20px', weight: 'bold'});
+    RoundText.text('第1回合');
+    RoundText.textColor('blue');
+
+    var RateText = Crafty.e('2D, DOM, Text')
+            .attr({
+                x: 400,
+                y: 20,
+                w: 200
+            }).textFont({size: '20px', weight: 'bold'});
+    RateText.text('曝光率：0%');
+    RateText.textColor('blue');
+
+    var update_rate = function (rate) {
+        RateText.text('曝光率：' + ((100 * rate).toPrecision(3)).toString() + "%");
+    };
+    var update_round = function () {
+        RoundText.text("第"+round.toString()+"回合");
+    };
+
+    var next = function () {
+        w = suf_img.length;
+        h = suf_img[0].length;
+        for (var i = 0; i < w; i++) {
+            for (var j = 0; j < h; j++) {
+                s = suf_img[i][j]._strength;
+                if(s < 0.95){
+                    suf_img[i][j].color('#000', s + 0.025);
+                }
+            }
+        }
+    };
+
+
+    // 初始化，发射条件
+    var fase = function () {
+        // 音效
+        Crafty.audio.play("click");
+
+        x0 = sprite.x - main_img.x;
+        y0 = main_img.h;
+        // console.log(y0);
+        x1 = Mouse_info.x - main_img.x;
+        y1 = Mouse_info.y - main_img.y;
+
+        k = (y1 - y0) / (x1 - x0);
+
+        b = y0 - k * x0;
+
+        w = suf_img.length;
+        h = suf_img[0].length;
+        r = suf_img[0][0].w / 2;
+        for (var i = 0; i < w; i++) {
+            for (var j = 0; j < h; j++) {
+                // console.log(i);
+                // console.log(j);
+                center_point = get_center(suf_img[i][j]);
+                d = get_distance(center_point, k, b);
+
+                if (d < r) {
+                    suf_img[i][j].color('#000', 0);
+                }
+                // console.log(center_point);
+            }
+        }
+    };
+    var get_distance = function (center, k, b) {
+        return Math.abs((center.x * k - center.y + b) / Math.sqrt(Math.pow(k, 2) + 1));
+    };
+
+    var get_center = function (suf) {
+        return {
+            'x': suf.x + suf.w / 2 - main_img.x,
+            'y': suf.y + suf.h / 2 - main_img.y
+        };
+    };
+
+
+    //     var suf_img = Crafty.e("2D, DOM, Color, Mouse")
+    //             .attr({x: 100, y: 0, w: 400, h: 500})
+    //             .color('#000000',0.99);
+
+    // //    main_img.bind()
+    // suf_img.bind('Click',function (e) {
+    //     console.log(e);
+    //     dx = e.x;
+    //     dy = e.y;
+    //     console.log(dx);
+    //     console.log(dy);
+    //     // Crafty.e("2D, Canvas, Color")
+    //     //      .color('red')
+    //     //      .attr({x: dx, y: dy, w: 5, h: 5});
+    //     this.color(this._red,this._green,this._blue,this._strength-0.1);
+    // });
+
+
+    var options = {
+        maxParticles: 150,
+        size: 18,
+        sizeRandom: 4,
+        speed: 1,
+        speedRandom: 1.2,
+        // Lifespan in frames
+        lifeSpan: 29,
+        lifeSpanRandom: 7,
+        // Angle is calculated clockwise: 12pm is 0deg, 3pm is 90deg etc.
+        angle: 65,
+        angleRandom: 34,
+        startColour: [255, 131, 0, 1],
+        startColourRandom: [48, 50, 45, 0],
+        endColour: [245, 35, 0, 0],
+        endColourRandom: [60, 60, 60, 0],
+        // Only applies when fastMode is off, specifies how sharp the gradients are drawn
+        sharpness: 20,
+        sharpnessRandom: 10,
+        // Random spread from origin
+        spread: 10,
+        // How many frames should this last
+        duration: -1,
+        // Will draw squares instead of circle gradients
+        fastMode: false,
+        gravity: {x: 0, y: 0.1},
+        // sensible values are 0-3
+        jitter: 0,
+        // Offset for the origin of the particles
+        originOffset: {x: 0, y: 0}
+    };
+
+    Crafty.e("2D,Canvas,Particles").particles(options);
+
+    //    var square = Crafty.e('2D, Canvas, Color');
+    //    square.attr({
+    //        x: 10,
+    //        y: 10,
+    //        w: 100,
+    //        h: 100
+    //    }).color('red');
+    //
+    //    square.origin("center");
+    //
+    //    square.bind('EnterFrame', function () {
+    //        this.rotation = this.rotation + 1;
+    //    });
+
+    // 文本
+    var bgmText = Crafty.e('2D, DOM, Text')
+            .attr({
+                x: 10,
+                y: 10,
+                w: 100
+            });
+    bgmText.text('Now: 鈴木このみ - Redo.mp3');
+
+    var MainText = Crafty.e('2D, DOM, Text')
+            .attr({
+                x: 150,
+                y: 20,
+                w: 500
+            }).textFont({size: '20px', weight: 'bold'});
+    MainText.text('GAME：谁组的暗牧');
+    MainText.textColor('red');
+
+
+    Crafty.paths({audio: "res/"});
+
+    var assetsObj = {
+        "audio": {
+            "bgm": "redo.mp3",
+            "bgm2": "泠鸢yousa - 神的随波逐流.mp3",
+            "click": "mofa.mp3"
+        }
+    };
+    var bgm = "bgm";
+    Crafty.load(assetsObj, // preload assets
+            function () { //when loaded
+//                    Crafty.scene("main"); //go to main scene
+                Crafty.audio.play(bgm, -1, 0.5); //Play the audio file
+//                Crafty.background('#FFFFFF url(landscape.png) no-repeat center center');
+//                    Crafty.e('2D, DOM, lazycat'); // create entity with sprite
+            },
+
+            function (e) { //progress
+            },
+
+            function (e) { //uh oh, error loading
+            }
+    );
+
+    // 小精灵~
+    //    var assetsObj = {
+    //        "sprites": {
+    //            "http://i.imgur.com/e50rhHP.png": {
+    //                tile: 104,
+    //                tileh: 114,
+    //                map: {
+    //                    walker_start: [0, 0],
+    //                    walker_middle: [7, 0],
+    //                    walker_end: [7, 1]
+    //                }
+    //            }
+    //        }
+    //    };
+    //
+    //
+    //    window.onload = function () {
+    //        Crafty.init(400, 400);
+    //        Crafty.load(assetsObj, go);
+    //    };
+    //
+    //    function go() {
+    //        var walker = Crafty.e('2D, Canvas, walker_start, SpriteAnimation')
+    //                .reel("walking", 1000, [
+    //                    [0, 0], [1, 0], [2, 0], [3, 0], [4, 0], [5, 0], [6, 0], [7, 0],
+    //                    [0, 1], [1, 1], [2, 1], [3, 1], [4, 1], [5, 1], [6, 1], [7, 1]
+    //                ])
+    //                .animate("walking", -1);
+    //    }
+</script>
+</body>
+</html>

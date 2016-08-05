@@ -1,0 +1,7 @@
+body{
+    margin: 0px;
+}
+
+#game{
+    cursor: url("../res/Move_Fsh.cur"),auto;
+}
