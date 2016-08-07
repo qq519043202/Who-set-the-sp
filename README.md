@@ -34,5 +34,6 @@
 - 实现：JavaScript，craftyjs
 
 
-### 音效
-- [来自~~](http://sc.chinaz.com/yinxiao/)
+### 素材
+- [音效~~](http://sc.chinaz.com/yinxiao/)
+- [图片](http://sc.chinaz.com/tubiao/150409098720.htm)
