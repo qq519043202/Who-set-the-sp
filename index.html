@@ -10,6 +10,7 @@
     <link rel="stylesheet" type="text/css" href="./css/my.css">
     <link rel="stylesheet" href="./css/font-awesome-4.6.3/css/font-awesome.min.css">
     <script type="text/javascript" src="./js/jquery.js"></script>
+    <!--<script type="text/javascript" src="./js/img_store.js"></script>-->
 </head>
 <body>
 <div id="main" class="pure-g">
@@ -27,8 +28,8 @@ PS：抓包可以直接获取图片orz。。
         <a class="pure-button pure-button-hidden" id="download">
             <i class="fa fa-download"></i> 图片下载
         </a>
-        <button id="func"><i class="fa fa-flash"></i></button>
-        <button id="func2"><i class="fa fa-flash"></i></button>
+        <!--<button id="func"><i class="fa fa-flash"></i></button>-->
+        <!--<button id="func2"><i class="fa fa-flash"></i></button>-->
     </div>
 
 
@@ -47,17 +48,33 @@ PS：抓包可以直接获取图片orz。。
     //    $("#game").mouseover(function () {
     //        this.style.cursor = 'hands';
     //    });
+    function len(jsonObj) {
+        var Length = 0;
+        for (var item in jsonObj) {
+            Length++;
+        }
+        return Length;
+    }
+    // todo: 回调比较慢怎么办。。。
+    var img_json = {"24": {"url": "./img/Undertale.jpg", "h": 600, "w": 371}, "25": {"url": "./img/\u3010C90\u3011fish.jpg", "h": 600, "w": 351}, "26": {"url": "./img/\u51fa\u4f1a\u3044\ud83d\udc1f\ud83d\udc20\ud83d\udc95.jpg", "h": 447, "w": 600}, "27": {"url": "./img/= =.jpg", "h": 600, "w": 393}, "20": {"url": "./img/\u6e2f\u6e7e\u590f\u59eb.jpg", "h": 600, "w": 455}, "21": {"url": "./img/SKYLINE \u30ed\u30f3\u30c9\u30f3UK.jpg", "h": 338, "w": 600}, "22": {"url": "./img/\u2606\u2740.jpg", "h": 600, "w": 424}, "23": {"url": "./img/\u30b9\u30ab\u30b5\u30cf.jpg", "h": 600, "w": 444}, "28": {"url": "./img/\u30bf\u30de\u30e2\u3061\u3083\u3093\u30b5\u30de\u30fc.jpg", "h": 600, "w": 390}, "1": {"url": "./img/Stardust.jpg", "h": 433, "w": 600}, "3": {"url": "./img/8.12.jpg", "h": 600, "w": 424}, "2": {"url": "./img/\u3055\u304f\u307e \u308c\u3044\ud83d\udca6\ud83c\udf02.jpg", "h": 600, "w": 440}, "5": {"url": "./img/\u7121\u984c.jpg", "h": 600, "w": 513}, "4": {"url": "./img/\u30a2\u30ec\u30b9.jpg", "h": 600, "w": 600}, "7": {"url": "./img/\u7075\u68a6.jpg", "h": 425, "w": 600}, "6": {"url": "./img/\u9b3c\u5316\u30ec\u30e0.jpg", "h": 314, "w": 600}, "9": {"url": "./img/\u30ed\u30df\u30aa\u3068\u30b7\u30f3\u30c7\u30ec\u30e9.jpg", "h": 600, "w": 450}, "8": {"url": "./img/\u30a8\u30df\u30ea\u30a2.jpg", "h": 600, "w": 530}, "11": {"url": "./img/\u3072\u307e\u308f\u308a\ud83c\udf3b\ud83c\udf3b.jpg", "h": 414, "w": 600}, "10": {"url": "./img/\u30e8\u30cf\u30cd.jpg", "h": 600, "w": 451}, "13": {"url": "./img/\u72db\u679d\u51ea\u6597.jpg", "h": 600, "w": 426}, "12": {"url": "./img/8\u272112.jpg", "h": 600, "w": 412}, "15": {"url": "./img/\u6df1\u6d77\u5c11\u5973.jpg", "h": 376, "w": 600}, "14": {"url": "./img/\u300cC90\u300d\u7815\u83ef\u5909\u300c\u304a\u54c1\u66f8\u304d\u300d.jpg", "h": 600, "w": 472}, "17": {"url": "./img/\u30b7\u30e3\u30a4\u30cb\u30fc\u2606.jpg", "h": 600, "w": 424}, "16": {"url": "./img/20\u9031\u5e74\u7d00\u5ff5.jpg", "h": 301, "w": 600}, "19": {"url": "./img/meizi1.png", "h": 480, "w": 360}, "18": {"url": "./img/journey.jpg", "h": 456, "w": 600}};
+    var cimg ;
+
+    num = Math.ceil(Math.random() * len(img_json));
+    cimg = img_json[Math.ceil(Math.random() * len(img_json))];
+
+//    蜜汁获取不到长高orz
     var main_img = Crafty.e("2D, DOM, Image")
-            .attr({x: 50, y: 50, w: 360, h: 480})
-            .image("./res/meizi1.png", "no-repeat");
-    // main_img._z = 2;
+                    .image(cimg['url'], "no-repeat")
+                .attr({x: 50, y: 50, w: cimg['w'], h: cimg['h']});
+//            .attr({x: 50, y: 50});
+//     main_img._z = 1;
     var suf_img = new Array();
     var round = 1;
     var Mouse_info;
 
     // 达到多少曝光度，获胜
     var success_rate = 0.5;
-
+    console.log(main_img.img.naturalHeight);
     for (var i = 0; i < main_img.w; i += 20) {
         row = new Array();
         for (var j = 0; j < main_img.h; j += 20) {
@@ -68,7 +85,7 @@ PS：抓包可以直接获取图片orz。。
                 // this.color(this._red,this._green,this._blue,0);
                 Mouse_info = e;
                 fase();
-                if (gameover() && round <= 10) {
+                if (gameover() && round <= 100) {
 //                    alert('success!');
                     download();
                 }
@@ -91,19 +108,19 @@ PS：抓包可以直接获取图片orz。。
         suf_img.push(row);
     }
 
-    Crafty.e('Floor, 2D, Canvas, Color, Collision')
-            .attr({x: 45, y: 530, w: 5, h: 25})
-            .color('green');
-    Crafty.e('Floor, 2D, Canvas, Color')
-            .attr({x: 410, y: 530, w: 5, h: 25})
-            .color('green');
-    Crafty.e('Floor, 2D, Canvas, Color')
-            .attr({x: 50, y: 550, w: 360, h: 5})
-            .color('green');
+//    Crafty.e('Floor, 2D, Canvas, Color, Collision')
+//            .attr({x: 45, y: 530, w: 5, h: 25})
+//            .color('green');
+//    Crafty.e('Floor, 2D, Canvas, Color')
+//            .attr({x: 410, y: 530, w: 5, h: 25})
+//            .color('green');
+//    Crafty.e('Floor, 2D, Canvas, Color')
+//            .attr({x: 50, y: 550, w: 360, h: 5})
+//            .color('green');
 
     var sprite = Crafty.e('2D, DOM, Multiway, Gravity, Keyboard, Image')
-                    .attr({x: 200, y: 530, w: 120, h: 120})
-                    .image("./res/glitch_walker.png", "no-repeat")
+                    .attr({x: 50+main_img.w/2 , y: 50 + main_img.h, w: 50, h: 50})
+                    .image("./res/so1ngname.cur", "no-repeat")
                     .origin("center")
                     .multiway((200, {RIGHT_ARROW: 0, LEFT_ARROW: 180}))
 //            .gravity('Floor')

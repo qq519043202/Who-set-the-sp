@@ -5,7 +5,7 @@ var set_items = function(){
 	position = Math.floor(Math.random()*num);
 	Y = Math.floor(position/w);
 	X = position%w;
-	//todo:什么逻辑嘞。。
+	//todo:item放置的要是什么逻辑嘞。。
 	if(!Math.round(suf_img[X][Y]._strength)){
 		if (Math.round(Math.random())){
 			suf_img[X][Y].image("./res/item0.png");
@@ -19,7 +19,7 @@ var set_items = function(){
 	}
 
 
-}
+};
 
 var trigger_item0 = function(i,j){
     w = suf_img.length;
@@ -37,7 +37,7 @@ var trigger_item0 = function(i,j){
 	        suf_img[x][y].color('#000', 0);
 	    }
 	 }
-}
+};
 // status 0:左,1:上,2:右
 var trigger_item1 = function(k,b,status){
 	Crafty.audio.play("fanshe");
@@ -75,15 +75,15 @@ var trigger_item1 = function(k,b,status){
     	}
     }
 
-}
+};
 
-
+//以下测试使用。。
 $('#func').click(function(){
 	// main_img._z = 2;
 	main_img._globalZ = 3;
 	main_img.rotation = 0.1;
 	main_img.rotation = 0;
-})
+});
 
 $('#func2').click(function(){
 	// suf_img[0][0]._z = 1;
@@ -94,4 +94,4 @@ $('#func2').click(function(){
 	suf_img[0][0].image("./res/item1.png");
     suf_img[17][13].image("./res/item1.png");
 
-})
+});
